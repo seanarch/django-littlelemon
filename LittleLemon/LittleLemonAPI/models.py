@@ -4,6 +4,9 @@ class Category(models.Model):
     slug = models.SlugField() 
     title = models.CharField(max_length=255)
 
+    def __str__(self) -> str:
+        return self.title
+    
 # Create your models here.
 class MenuItem(models.Model):
     title = models.CharField(max_length=255)
