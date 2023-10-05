@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import MenuItem 
 from decimal import Decimal
 from .models import Category
+import bleach # santization data
 
 
 class CategorySerializer(serializers.ModelSerializer):
