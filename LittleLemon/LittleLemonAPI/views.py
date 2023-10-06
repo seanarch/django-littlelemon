@@ -10,8 +10,9 @@ from django.core.paginator import Paginator, EmptyPage
 from .throttles import TenCallsPerMinute
 
 # token 
-from rest_framework.permissions import IsAuthenticated  
+from rest_framework.permissions import IsAuthenticated, IsAdminUser  
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from django.contrib.auth.models import User, Group
 
 
 @api_view(['GET', 'POST']) 
@@ -102,6 +103,33 @@ def throttle_check(request):
 def throttle_check_auth(request):
     return Response({"message": "Message for the logged in users only!"})
 
+@api_view() 
+@permission_classes([IsAuthenticated]) 
+def me(request):
+    return Response(request.user.email)
+
+@api_view(['POST']) 
+@permission_classes([IsAdminUser]) 
+def managers(request):  
+    # if 'username' in request.data: 
+    #     username = request.data['username']
+    #     user = get_object_or_404(User, username = username) 
+    #     managers = Group.objects.get(name="Manager") 
+    #     managers.user_set.add(user)
+    #     return Response({"message": "ok"})
+    
+    username = request.data['username'] 
+    if username:
+        user = get_object_or_404(User, username = username) 
+        managers = Group.objects.get(name="Manager") 
+        if request.method == "POST":
+            managers.user_set.add(user)
+        elif request.method == "DELETE":
+            managers.user_set.remove(user) 
+        return Response({"message": "ok"})
+
+
+    return Response({'message': 'error'}, status.HTTP_400_BAD_REQUEST)
 # # Create your views here.
 # class MenuItemsView(generics.ListCreateAPIView): 
 #     queryset = MenuItem.objects.all() 
